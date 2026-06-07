@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import PageHeader from "../components/PageHeader";
 import PersonForm from "../components/PersonForm";
 import Modal from "../components/Modal";
 import { safeLoad, saveJSON } from "../utils";
-import type { Person } from "../types";
-
-const KEY = "pessoas";
+import type { Person } from "../types/interfaces";
+const KEY = "pessoas:crud";
 
 const CrudPage = () => {
   const [people, setPeople] = useState<Person[]>(() =>
@@ -19,16 +18,16 @@ const CrudPage = () => {
     "view",
   );
 
+  const filtered = people.filter((p) =>
+    [p.name, p.email, String(p.age), p.city || ""].some((v) =>
+      v.toLowerCase().includes(search.toLowerCase()),
+    ),
+  );
+
   const updateStorage = (next: Person[]) => {
     setPeople(next);
     saveJSON(KEY, next);
   };
-
-  React.useEffect(() => {
-    const handler = () => setPeople(safeLoad<Person[]>(KEY, []));
-    window.addEventListener("pessoas:updated", handler);
-    return () => window.removeEventListener("pessoas:updated", handler);
-  }, []);
 
   const handleSubmit = (
     data: Omit<Person, "id"> | (Partial<Person> & { id?: number }),
@@ -51,11 +50,11 @@ const CrudPage = () => {
     setModalOpen(false);
   };
 
-  const filtered = people.filter((p) =>
-    [p.name, p.email, String(p.age), p.city || ""].some((v) =>
-      v.toLowerCase().includes(search.toLowerCase()),
-    ),
-  );
+  useEffect(() => {
+    const handler = () => setPeople(safeLoad<Person[]>(KEY, []));
+    window.addEventListener("pessoas:crud:updated", handler);
+    return () => window.removeEventListener("pessoas:crud:updated", handler);
+  }, []);
 
   return (
     <div>
@@ -66,12 +65,14 @@ const CrudPage = () => {
           <PersonForm
             initial={selectedForForm ?? undefined}
             onSubmit={(d) => handleSubmit(d as any)}
-            submitLabel={selectedForForm ? "Salvar alterações" : "+ Criar registro"}
+            submitLabel={
+              selectedForForm ? "Salvar alterações" : "+ Criar registro"
+            }
           />
 
           {selectedForForm && (
             <div className="mt-3 flex gap-2">
-                <button
+              <button
                 onClick={() => setSelectedForForm(null)}
                 className="px-3 py-2 bg-[var(--color-bg3)] border border-purple-900/30 rounded-xl"
               >
@@ -84,7 +85,7 @@ const CrudPage = () => {
         <div className="bg-[var(--color-bg2)] border border-purple-900/30 rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <p className="font-mono text-xs font-bold text-sky-400">
-                <span className="font-normal text-[var(--color-dim)]">
+              <span className="font-normal text-[var(--color-dim)]">
                 {filtered.length} registros
               </span>
             </p>
@@ -222,7 +223,6 @@ const CrudPage = () => {
             <PersonForm
               initial={modalPerson}
               onSubmit={(data) => {
-                // ensure id is included
                 const withId = { ...(data as any), id: modalPerson.id };
                 handleSubmit(withId as any);
                 setModalOpen(false);
@@ -235,10 +235,25 @@ const CrudPage = () => {
         {modalPerson && modalMode === "delete" && (
           <div>
             <p className="font-bold">Confirmar exclusão</p>
-            <p className="font-mono text-sm text-[var(--color-dim)]">Tem certeza que deseja excluir {modalPerson.name}? Esta ação não pode ser desfeita.</p>
+            <p className="font-mono text-sm text-[var(--color-dim)]">
+              Tem certeza que deseja excluir {modalPerson.name}? Esta ação não
+              pode ser desfeita.
+            </p>
             <div className="mt-4 flex gap-2">
-              <button onClick={() => { remove(modalPerson.id); }} className="px-3 py-2 bg-red-500/20 border border-red-500/25 text-[var(--color-red)] rounded-lg">Confirmar exclusão</button>
-              <button onClick={() => setModalOpen(false)} className="px-3 py-2 bg-[var(--color-bg)] rounded-lg">Cancelar</button>
+              <button
+                onClick={() => {
+                  remove(modalPerson.id);
+                }}
+                className="px-3 py-2 bg-red-500/20 border border-red-500/25 text-[var(--color-red)] rounded-lg"
+              >
+                Confirmar exclusão
+              </button>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="px-3 py-2 bg-[var(--color-bg)] rounded-lg"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         )}

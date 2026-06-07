@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import { safeLoad, saveJSON } from '../utils'
-import type { Person } from '../types';
 import PersonForm from '../components/PersonForm'
+import type { Person } from '../types/interfaces'
 
-const KEY = 'pessoas'
+const KEY = 'pessoas:backend'
 
 const BackendPage = () => {
   const [people, setPeople] = useState<Person[]>(() => safeLoad<Person[]>(KEY, []))
@@ -48,8 +48,8 @@ const BackendPage = () => {
 
   useEffect(() => {
     const handler = () => setPeople(safeLoad<Person[]>(KEY, []))
-    window.addEventListener('pessoas:updated', handler)
-    return () => window.removeEventListener('pessoas:updated', handler)
+    window.addEventListener('pessoas:backend:updated', handler)
+    return () => window.removeEventListener('pessoas:backend:updated', handler)
   }, [])
 
   return (

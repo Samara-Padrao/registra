@@ -4,28 +4,9 @@ import { FiMapPin, FiSearch, FiLoader } from "react-icons/fi";
 import { FaHouseFlag } from "react-icons/fa6";
 import PageHeader from "../components/PageHeader";
 import Modal from "../components/Modal";
-import { safeLoad, saveJSON } from "../utils";
-import type { Person } from "../types";
+import { applyCepMask, INPUT_CLS, safeLoad, saveJSON } from "../utils";
 import { BsFillHouseXFill } from "react-icons/bs";
-
-interface Address {
-  cep: string;
-  logradouro: string;
-  bairro: string;
-  localidade: string;
-  uf: string;
-  erro?: boolean;
-}
-
-const INPUT_CLS =
-  "bg-[var(--color-bg2)] border border-purple-900/40 text-[#e2d9f3] rounded-xl px-3.5 py-2.5 font-mono text-sm outline-none focus:border-purple-500/70 transition-colors placeholder:text-[var(--color-dim)]";
-
-const applyCepMask = (value: string) => {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  return digits.length > 5
-    ? `${digits.slice(0, 5)}-${digits.slice(5)}`
-    : digits;
-};
+import type { Address, Person } from "../types/interfaces";
 
 const CepPage = () => {
   const [cep, setCep] = useState("");
@@ -33,10 +14,19 @@ const CepPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [history, setHistory] = useState<Address[]>([]);
-  const [people, setPeople] = useState<Person[]>(() => safeLoad<Person[]>("pessoas", []));
+  const [people, setPeople] = useState<Person[]>(() => safeLoad<Person[]>("pessoas:api", []));
   const [linkModalOpen, setLinkModalOpen] = useState(false);
 
-  const persistPeople = (next: Person[]) => { saveJSON('pessoas', next); window.dispatchEvent(new CustomEvent('pessoas:updated')) }
+  const addressRows = address
+    ? [
+        { label: "Logradouro", value: address.logradouro },
+        { label: "Bairro", value: address.bairro },
+        { label: "Cidade", value: address.localidade },
+        { label: "Estado", value: address.uf },
+      ]
+    : [];
+
+  const persistPeople = (next: Person[]) => { saveJSON('pessoas:api', next); window.dispatchEvent(new CustomEvent('pessoas:api:updated')) }
 
   const fetchAddress = async () => {
     const cleanCep = cep.replace(/\D/g, "");
@@ -76,16 +66,7 @@ const CepPage = () => {
     setAddress(item);
     setError("");
   };
-
-  const addressRows = address
-    ? [
-        { label: "Logradouro", value: address.logradouro },
-        { label: "Bairro", value: address.bairro },
-        { label: "Cidade", value: address.localidade },
-        { label: "Estado", value: address.uf },
-      ]
-    : [];
-
+  
   return (
     <div>
       <PageHeader title="Busca de CEP" />

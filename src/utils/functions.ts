@@ -24,3 +24,14 @@ export const safeLoad = <T>(key: string, def: T): T => {
 export const saveJSON = (key: string, data: unknown): void => {
   try { localStorage.setItem(key, JSON.stringify(data)) } catch {}
 }
+
+
+export const INPUT_CLS =
+  "bg-[var(--color-bg2)] border border-purple-900/40 text-[#e2d9f3] rounded-xl px-3.5 py-2.5 font-mono text-sm outline-none focus:border-purple-500/70 transition-colors placeholder:text-[var(--color-dim)]";
+
+export const applyCepMask = (value: string) => {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  return digits.length > 5
+    ? `${digits.slice(0, 5)}-${digits.slice(5)}`
+    : digits;
+};
