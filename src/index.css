@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #08070f;
+  --color-bg2: #100e1a;
+  --color-bg3: #16132a;
+  --color-surface: #1a1630;
+  --color-purple: #7c3aed;
+  --color-purple-light: #a78bfa;
+  --color-purple-dim: rgba(124,58,237,0.2);
+  --color-accent: #c4b5fd;
+  --color-muted: #7a6a99;
+  --color-dim: #4a3a66;
+  --color-green: #6ee7b7;
+  --color-red: #f87171;
+  --color-amber: #fbbf24;
+  --font-mono: 'JetBrains Mono', monospace;
+--font-display: 'Montserrat', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body { font-family: var(--font-display); background: var(--color-bg); color: #e2d9f3; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-bg3); border-radius: 3px; }
+
+/* Modal animations */
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(6px) scale(.98) }
+  to { opacity: 1; transform: translateY(0) scale(1) }
+}
+
+.animate-fadeIn { animation: fadeIn 200ms cubic-bezier(.2,.8,.2,1) forwards }
+.animate-popIn { animation: popIn 220ms cubic-bezier(.2,.8,.2,1) forwards }
+
