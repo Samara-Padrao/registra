@@ -1,4 +1,4 @@
-# REGISTRA — React + TypeScript + Vite
+# REGISTRA React + TypeScript + Vite
 
 Small demo app showing local persistence, CEP lookup and a CRUD interface.
 
